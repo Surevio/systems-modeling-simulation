@@ -1,0 +1,30 @@
+* Задача 2. Комплекс коммутации сообщений: 20 абонентов, 2 канала по 10^6 бит/с.
+* У каждого абонента экспоненциальные интервалы с интенсивностью 2 1/с,
+* суммарный поток 20*2 = 40 1/с, средний интервал 0.025 с.
+* Категория 1 (команды, 0.7): длина равномерно 1100..11000 байт, относительный приоритет.
+* Категория 2 (0.3): длина нормальная, m = 3100, sigma = 540 байт.
+* Время передачи = длина(байт)*8 / 10^6 c
+CHANNELS STORAGE 2
+
+        GENERATE (Exponential(1,0,0.025))
+        TRANSFER .3,CAT1,CAT2        ; 0.7 -> CAT1, 0.3 -> CAT2
+
+CAT1    PRIORITY 1
+        ASSIGN 1,(Uniform(2,1100,11000))
+        QUEUE QMSG
+        ENTER CHANNELS,1
+        DEPART QMSG
+        ADVANCE (P1#8/1000000)
+        LEAVE CHANNELS,1
+        TERMINATE 1
+
+CAT2    PRIORITY 0
+        ASSIGN 1,(Normal(3,3100,540))
+        QUEUE QMSG
+        ENTER CHANNELS,1
+        DEPART QMSG
+        ADVANCE (P1#8/1000000)
+        LEAVE CHANNELS,1
+        TERMINATE 1
+
+        START 10000

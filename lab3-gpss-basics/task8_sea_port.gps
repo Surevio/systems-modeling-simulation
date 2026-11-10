@@ -1,0 +1,15 @@
+* Задача 8. Суда приходят каждые 15+-5 ч, в порту 10 причалов,
+* судно занимает 3 причала и стоит 10+-5 ч. Моделируем месяц: 30*24 = 720 ч
+PORT    STORAGE 10
+
+        GENERATE 15,5
+        QUEUE WAIT
+        ENTER PORT,3
+        DEPART WAIT
+        ADVANCE 10,5
+        LEAVE PORT,3
+        TERMINATE
+
+        GENERATE 720
+        TERMINATE 1
+        START 1

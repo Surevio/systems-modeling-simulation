@@ -1,0 +1,27 @@
+* Задача 1. Одноканальная система, пуассоновский поток с интенсивностью 0.05
+* (средний интервал 20). Тип 1 с вероятностью 0.4, тип 2 с вероятностью 0.6,
+* у типа 2 приоритет выше. Обслуживание экспоненциальное: 12 для типа 1, 16 для типа 2.
+* Моделируем 100 требований. Очереди QTYPE1 и QTYPE2 раздельные, чтобы получить
+* среднее время ожидания по каждому типу.
+        GENERATE (Exponential(1,0,20))
+        TRANSFER .6,TYPE1,TYPE2      ; 0.4 -> TYPE1, 0.6 -> TYPE2
+
+TYPE1   PRIORITY 1
+        ASSIGN 1,12                  ; среднее время обслуживания в параметр P1
+        QUEUE QTYPE1
+        SEIZE DEVICE
+        DEPART QTYPE1
+        TRANSFER ,SERVICE
+
+TYPE2   PRIORITY 2
+        ASSIGN 1,16
+        QUEUE QTYPE2
+        SEIZE DEVICE
+        DEPART QTYPE2
+        TRANSFER ,SERVICE
+
+SERVICE ADVANCE (Exponential(2,0,P1)) ; общее обслуживание для обоих типов
+        RELEASE DEVICE
+        TERMINATE 1
+
+        START 100

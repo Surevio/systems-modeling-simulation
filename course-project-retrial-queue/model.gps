@@ -1,0 +1,34 @@
+* Курсовая работа по моделированию систем
+* Сервер обрабатывает запросы от N АРМ, которые приходят по двум каналам связи.
+* Если оба канала заняты, запрос теряется с вероятностью 0.25,
+* иначе повторяется через Exp(480) с вероятностью 0.35 или через Exp(345) с вероятностью 0.65.
+* Сложность запроса N(7.8e7; 2.1e5) операций, производительность 5.2e5 оп/с.
+* Время моделирования 3 часа (10800 с). NARM меняется от 1 до 10.
+
+NARM     EQU     1           ; число АРМ N
+CHANNELS STORAGE 2           ; два канала связи
+
+         GENERATE (Exponential(1,0,(217/NARM)))
+         SAVEVALUE ARRIVED+,1
+CHECK    ASSIGN  1+,1        ; P1 - номер попытки
+         GATE SNF CHANNELS,BUSY
+         ENTER   CHANNELS,1
+         ADVANCE (Normal(2,78000000,210000)/520000)
+         LEAVE   CHANNELS,1
+         SAVEVALUE SERVED+,1
+         TEST G  P1,1,DONE
+         SAVEVALUE SERVRET+,1  ; обработан со 2-й и более попытки
+DONE     TERMINATE
+
+BUSY     TRANSFER .25,,LOST  ; 0.25 - потеря
+         TRANSFER .35,,R480
+R345     ADVANCE (Exponential(4,0,345))
+         TRANSFER ,CHECK
+R480     ADVANCE (Exponential(3,0,480))
+         TRANSFER ,CHECK
+LOST     SAVEVALUE LOSTCNT+,1
+         TERMINATE
+
+         GENERATE 10800      ; таймер 3 ч
+         TERMINATE 1
+         START 1

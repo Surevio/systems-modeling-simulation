@@ -1,0 +1,20 @@
+* Задача 7. Два кассира, покупатели предпочитают более быстрого первого.
+* Покупатели приходят каждые 7+-2 мин, первый кассир обслуживает за 3+-1 мин,
+* второй за 4+-2 мин. Время работы магазина 40 ч = 2400 мин
+        GENERATE 7,2
+        QUEUE ALLQ
+        TRANSFER BOTH,FIRST,SECOND   ; сначала пробуем первого кассира, если занят - второго
+FIRST   SEIZE CAS1
+        DEPART ALLQ
+        ADVANCE 3,1
+        RELEASE CAS1
+        TERMINATE
+SECOND  SEIZE CAS2
+        DEPART ALLQ
+        ADVANCE 4,2
+        RELEASE CAS2
+        TERMINATE
+
+        GENERATE 2400                ; таймер на 40 часов
+        TERMINATE 1
+        START 1
